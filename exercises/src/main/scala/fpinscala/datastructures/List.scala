@@ -111,6 +111,18 @@ object List { // `List` companion object. Contains functions for creating and wo
   def concat[A](ls: List[List[A]]): List[A] =
     foldRight(ls, Nil: List[A])(append2)
   
-  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+  def add1(l: List[Int]): List[Int] =
+    foldRight(l, Nil: List[Int]) { (item, acc) => Cons(item + 1, acc) }
     
+  def doubleToStr(l: List[Double]): List[String] =
+    foldRight(l, Nil: List[String]) { (item, acc) => Cons(item.toString, acc) }   
+    
+  def map[A,B](l: List[A])(f: A => B): List[B] =
+    foldRight(l, Nil: List[B]) { (item, acc) => Cons(f(item), acc) }
+  
+  def filter[A](as: List[A])(f: A => Boolean): List[A] = {
+    foldRight(as, Nil: List[A]) { (item, acc) => if (f(item)) Cons(item, acc) else acc }
+  }
+  
+  
 }
