@@ -49,20 +49,68 @@ object List { // `List` companion object. Contains functions for creating and wo
   def product2(ns: List[Double]) =
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
+  def tail[A](l: List[A]): List[A] =
+    l match {
+      case Cons(h, t) => t
+      case Nil => throw new UnsupportedOperationException("tail of an empty list.")
+    }
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  def setHead[A](l: List[A], h: A): List[A] =
+    Cons(h, tail(l))
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  @annotation.tailrec
+  def drop[A](l: List[A], n: Int): List[A] =
+    l match {
+      case Cons(_, rest) if (n > 0) => drop(rest, n-1)
+      case _ => l
+    }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] =
+    l match {
+      case Cons(h, rest) if (f(h)) => dropWhile(rest, f)
+      case _ => l
+    }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+  def init[A](l: List[A]): List[A] =
+    l match {
+      case Nil => throw new UnsupportedOperationException("init of an empty list.")
+      case Cons(i, Nil) => Nil
+      case Cons(i, rest) => Cons(i, init(rest))
+    }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  def length[A](l: List[A]): Int =
+    foldRight(l, 0) { (_, n) => n + 1 }
+  
+  @annotation.tailrec
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B =
+    l match {
+      case Nil => z
+      case Cons(item, rest) => foldLeft(rest, f(z, item))(f)
+    }
+  
+  def sum3(l: List[Int]) = foldLeft(l, 0)(_ + _)
+  
+  def product3(l: List[Double]) = foldLeft(l, 1.0)(_ * _)
+  
+  def length2(l: List[_]) = foldLeft(l, 0) { (n, _) => n + 1 }
+  
+  def reverse[A](l: List[A]): List[A] = foldLeft(l, Nil: List[A]) { (rl, item) => Cons(item, rl) }
+  
+  def foldRight2[A,B](l: List[A], z: B)(f: (A, B) => B): B = 
+    foldLeft(reverse(l), z) { (b,a) => f(a,b) }
 
-  def length[A](l: List[A]): Int = sys.error("todo")
-
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
-
-  def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+  def foldLeft2[A,B](l: List[A], z: B)(f: (B, A) => B): B =
+    foldRight(reverse(l), z) { (item, acc) => f(acc, item) }
+  
+  def append2[A](a1: List[A], a2: List[A]): List[A] =
+    foldRight(a1, a2)(Cons.apply)
+    
+  def append3[A](a1: List[A], a2: List[A]): List[A] =
+    foldLeft(reverse(a1), a2) { (list, item) => Cons(item, list) }
+  
+  def concat[A](ls: List[List[A]]): List[A] =
+    foldRight(ls, Nil: List[A])(append2)
+  
+  def map[A,B](l: List[A])(f: A => B): List[B] = ???
+    
 }
