@@ -43,8 +43,15 @@ object EitherTest {
             .map2(tryTrick("Rail slide", "Crunch")) { (t1, t2) =>
               s"$t1 to $t2! Whoa 100 points!"
             })
-          
+      
+      for (n <- 1 to 10)
+        println(Either.sequence(List(tryTrick("Kickflip", "Biff"), tryTrick("Rail slide", "Crunch"))))
+      
+      for (n <- 1 to 10)
+        println(Either.sequenceAll(List(tryTrick("Kickflip", "Biff"), tryTrick("Rail slide", "Crunch"))))
+            
     }
+    
     
   }
   

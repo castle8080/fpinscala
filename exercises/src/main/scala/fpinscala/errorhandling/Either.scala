@@ -29,10 +29,30 @@ case class Left[+E](get: E) extends Either[E,Nothing]
 case class Right[+A](get: A) extends Either[Nothing,A]
 
 object Either {
-  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] = sys.error("todo")
+  
+  def traverse[E,A,B](es: List[A])(f: A => Either[E, B]): Either[E, List[B]] =
+    es.foldRight(Right(Nil): Either[E, List[B]]) { (item, acc) =>
+      f(item).map2(acc) { (pItem, results) =>
+        pItem :: results
+      }
+    }
 
-  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] = sys.error("todo")
+  def sequence[E,A](es: List[Either[E,A]]): Either[E,List[A]] =
+    traverse(es)(identity)
 
+  // Used to accumulate all errors.
+  // This could be generalized further though.
+  // Perhaps a foldAll?
+  def sequenceAll[E,A](es: List[Either[E,A]]): Either[List[E],List[A]] =
+    es.foldRight(Right(Nil): Either[List[E], List[A]]) { (item, acc) =>
+      (item, acc) match {
+        case (Left(error), Left(errors)) => Left(error :: errors)
+        case (Left(error), Right(value)) => Left(List(error))
+        case (Right(v), Right(values))   => Right(v :: values)
+        case (Right(v), Left(errors))    => Left(errors)
+      }
+    }
+    
   def mean(xs: IndexedSeq[Double]): Either[String, Double] = 
     if (xs.isEmpty) 
       Left("mean of empty list!")
