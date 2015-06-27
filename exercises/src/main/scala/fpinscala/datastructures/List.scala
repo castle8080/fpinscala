@@ -120,9 +120,43 @@ object List { // `List` companion object. Contains functions for creating and wo
   def map[A,B](l: List[A])(f: A => B): List[B] =
     foldRight(l, Nil: List[B]) { (item, acc) => Cons(f(item), acc) }
   
-  def filter[A](as: List[A])(f: A => Boolean): List[A] = {
+  def filter[A](as: List[A])(f: A => Boolean): List[A] =
     foldRight(as, Nil: List[A]) { (item, acc) => if (f(item)) Cons(item, acc) else acc }
-  }
+ 
+  def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] =
+    foldRight(as, Nil: List[B]) { (item, acc) => append2(f(item), acc) }
   
+  def filter2[A](as: List[A])(f: A => Boolean): List[A] =
+    flatMap(as) { item => if (f(item)) List(item) else Nil }
+   
+  def combineIntLists(l1: List[Int], l2: List[Int]): List[Int] =
+    (l1, l2) match {
+      case (Cons(i1, lr1), Cons(i2, lr2)) => Cons(i1 + i2, combineIntLists(lr1, lr2))
+      case _ => Nil
+    }
+  
+  
+  def zipWith[A,B,C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] =
+    (l1, l2) match {
+      case (Cons(i1, lr1), Cons(i2, lr2)) => Cons(f(i1, i2), zipWith(lr1, lr2)(f))
+      case _ => Nil
+    }
+  
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+    
+    def startsWith(sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+      case (_, Nil) => true
+      case (Cons(i1, r1), Cons(i2, r2)) => i1 == i2 && startsWith(r1, r2)
+      case _ => false
+    }
+    
+    def go(sup: List[A], sub: List[A]): Boolean = sup match {
+      case _ if (startsWith(sup, sub)) => true
+      case Cons(_, supR) => go(supR, sub)
+      case _ => false
+    }
+ 
+    go(sup, sub)
+  }
   
 }
