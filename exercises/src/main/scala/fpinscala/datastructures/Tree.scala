@@ -49,7 +49,7 @@ object Tree {
     fold(tree)(_ => 1)(_ + _)
 
   def maximum2(tree: Tree[Int]): Int =
-    fold(tree)(identity)(Math.max)
+    fold(tree)(identity)(math.max)
 
   def depth2(tree: Tree[Int]): Int =
     fold(tree)(_ => 1)(1 + _.max(_))

@@ -23,6 +23,8 @@ object OptionTest {
     
     println(Some(1).filter { _ > 4})
     println(Some(10).filter { _ > 4})
+    
+    println(Option.variance(List(1.0, 2.0, 7.7, 4.5)))
   }
   
 }
