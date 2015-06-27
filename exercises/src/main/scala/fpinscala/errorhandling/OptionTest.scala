@@ -25,6 +25,13 @@ object OptionTest {
     println(Some(10).filter { _ > 4})
     
     println(Option.variance(List(1.0, 2.0, 7.7, 4.5)))
+    
+    println(Option.map2(Some(1), Some(2)) { _+ _ })
+    
+    println(Option.sequence(List(Some(1), Some(2))))
+    
+    println(Option.sequence2(List(Some(1), Some(2))))
+    
   }
   
 }
