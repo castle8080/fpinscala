@@ -38,9 +38,29 @@ trait Stream[+A] {
     case _ => Stream.empty[A]
   }
 
-  def forAll(p: A => Boolean): Boolean = sys.error("todo")
+  def forAll(p: A => Boolean): Boolean =
+    find(!p(_)).isEmpty
 
-  def headOption: Option[A] = sys.error("todo")
+  // This is the answer the book had.
+  // I was really confused how it stopped evaluation early.
+  // The foldRight implementation for streams is pretty awesome.
+    
+  /*
+   * Since `&&` is non-strict in its second argument, this terminates the traversal as soon as a nonmatching element is found.
+   */
+  def forAllBook(f: A => Boolean): Boolean =
+    foldRight(true)((a,b) => f(a) && b)
+  
+  def takeWhile2(p: A => Boolean): Stream[A] =
+    foldRight(Stream.empty[A]) { (h, rest) =>
+      if (p(h))
+        Stream.cons(h, rest.takeWhile2(p))
+      else
+        Stream.empty
+    }
+    
+  def headOption: Option[A] = 
+    foldRight(Option.empty[A]) { (h, _) => Some(h) }
 
   // 5.7 map, filter, append, flatmap using foldRight. Part of the exercise is
   // writing your own function signatures.
