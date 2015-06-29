@@ -12,6 +12,7 @@ object StreamTest {
     println(xs.toList())
    
     println(xs.take(1).toList)
+    println(xs.take(2).toList)
     println(xs.drop(1).toList)
     
     println(Stream.empty[Int].drop(10).toList)
@@ -41,18 +42,18 @@ object StreamTest {
       println(s.forAllBook { x => x > 1 })
     }
     
-    
     println(Stream(1,2,3,4).takeWhile2(_ < 2).toList)
     println(Stream(1,2).headOption)
     println(Stream.empty[Int].headOption)
-    
     
     println(Stream(1,2,3,4).map(_ * 2).toList)
     println(Stream(1,2,3,4,1,1,10).filter(_ > 2).toList)
     println((Stream(1,2,3) append Stream(3,4,5)).toList)
     
-    
     println(Stream(1,2,3).flatMap { x => Stream(x,x) }.toList)
+    
+    println(Stream.constant(10).take(10).toList)
+    println(Stream.from(5).take(10).toList)
     
   }
   

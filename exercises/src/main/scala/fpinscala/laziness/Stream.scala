@@ -22,9 +22,9 @@ trait Stream[+A] {
   }
   
   def take(n: Int): Stream[A] = this match {
-    case _ if (n <= 0) => Stream.empty[A]
-    case Empty         => Stream.empty[A]
-    case Cons(h, t)    => Stream.cons(h(), take(n-1))
+    case _ if (n <= 0) => empty[A]
+    case Empty         => empty[A]
+    case Cons(h, t)    => cons(h(), t().take(n-1))
   }
 
   @annotation.tailrec
@@ -35,7 +35,7 @@ trait Stream[+A] {
 
   def takeWhile(p: A => Boolean): Stream[A] = this match {
     case Cons(h, t) if (p(h())) => cons(h(), t().takeWhile(p))
-    case _ => Stream.empty[A]
+    case _ => empty[A]
   }
 
   def forAll(p: A => Boolean): Boolean =
@@ -101,7 +101,10 @@ object Stream {
     else cons(as.head, apply(as.tail: _*))
 
   val ones: Stream[Int] = Stream.cons(1, ones)
-  def from(n: Int): Stream[Int] = sys.error("todo")
+  
+  def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+  
+  def from(n: Int): Stream[Int] = cons(n, from(n+1))
 
   def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = sys.error("todo")
 }
