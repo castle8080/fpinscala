@@ -122,7 +122,27 @@ zipAll
       case _ => None
     }
   
-  def startsWith[B](s: Stream[B]): Boolean = sys.error("todo")
+  def startsWith[B](s: Stream[B]): Boolean =
+    this
+      .zipAll(s)
+      .takeWhile(e => e._2.isDefined)
+      .forAll(e => e._1 == e._2)
+    
+  def tails: Stream[Stream[A]] =
+    unfold(this) { s =>
+      s match {
+        case (Cons(h, t)) => Some(s, t())
+        case _ => None
+      }
+    }.append(Stream(empty))
+    
+    
+  def scanRight[B](initial: B)(f: (A,B) => B): Stream[B] =
+    foldRight((Stream(initial), initial)) { case (item, (s, last)) =>
+      val current = f(item, last)
+      (cons(current, s), current)
+    }._1
+    
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]

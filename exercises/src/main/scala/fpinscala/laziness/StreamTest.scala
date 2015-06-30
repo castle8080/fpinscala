@@ -76,6 +76,13 @@ object StreamTest {
     
     println(Stream(1,2).zipAll(Stream("Bob", "Jim", "Barb")).toList)
     
+    println(Stream(1,2,3).startsWith(Stream(1,2)))
+    println(Stream(1,2,3).startsWith(Stream(1,2,3)))
+    println(Stream(1,2,3).startsWith(Stream(1,2,3,4)))
+   
+    Stream(1,2,3,4).tails.map(_.toList).toList.foreach(println)
+  
+    println(Stream(1,2,3).scanRight(0){ _ + _ }.toList)
   }
   
 }
