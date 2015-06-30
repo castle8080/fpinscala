@@ -55,6 +55,27 @@ object StreamTest {
     println(Stream.constant(10).take(10).toList)
     println(Stream.from(5).take(10).toList)
     
+    println(Stream.fibs().take(10).toList)
+
+    println(Stream.unfold(12){ x =>
+      if (x <= 0)     None
+      else if (x < 5) Some(x, 0)
+      else            Some(5, x-5)
+    }.toList)
+    
+    println(Stream.fibs2.take(10).toList)
+    println(Stream.from2(9).take(10).toList)
+    println(Stream.constant2(99).take(10).toList)
+    println(Stream.ones2.take(10).toList)
+    
+    println(Stream(1,2,3).mapUnfold { _ * 3 }.toList)
+    println(Stream.from(100).takeUnfold(10).toList)
+    
+    println(Stream.from(1).takeWhile(_ < 100).toList)
+    println(Stream.ones.zipWith(Stream(1,2,3))(_ + _).toList)
+    
+    println(Stream(1,2).zipAll(Stream("Bob", "Jim", "Barb")).toList)
+    
   }
   
 }
