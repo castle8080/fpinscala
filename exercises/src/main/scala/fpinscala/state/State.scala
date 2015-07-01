@@ -36,13 +36,38 @@ object RNG {
   def double(rng: RNG): (Double, RNG) =
     nonNegativeInt(rng) match { case (i, nRng) => (i.toDouble / (Int.MaxValue.toDouble + 1), nRng) }
 
-  def intDouble(rng: RNG): ((Int,Double), RNG) = ???
+  def intDouble(rng: RNG): ((Int,Double), RNG) =
+    rng.nextInt match { case (i, rng) =>
+      RNG.double(rng) match { case (d, rng) =>
+        ((i, d), rng)  
+      }
+    }
 
-  def doubleInt(rng: RNG): ((Double,Int), RNG) = ???
+  def doubleInt(rng: RNG): ((Double,Int), RNG) =
+    intDouble(rng) match { case ((i, d), rng) => ((d, i), rng) }
+    
+  def double3(rng: RNG): ((Double,Double,Double), RNG) =
+    double(rng) match { case (d1, rng) =>
+      double(rng) match { case (d2, rng) =>
+        double(rng) match { case (d3, rng) =>
+          ((d1, d2, d3), rng)  
+        }
+      }  
+    }
 
-  def double3(rng: RNG): ((Double,Double,Double), RNG) = ???
+  def ints(count: Int)(rng: RNG): (List[Int], RNG) =
+    if (count == 0)
+      (Nil, rng)
+    else
+      ints(count - 1)(rng) match { case (l, rng) =>
+        rng.nextInt match { case (i, rng) =>
+          (i :: l, rng)  
+        }  
+      }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = ???
+  val double2 = map(nonNegativeInt) { i =>
+    i.toDouble / (Int.MaxValue.toDouble + 1)
+  }
 
   def map2[A,B,C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] = ???
 

@@ -21,9 +21,26 @@ object StateTest {
         
   }
   
+  def ex6_3() = {
+    println(RNG.intDouble(newRNG))
+    println(RNG.doubleInt(newRNG))
+    println(RNG.double3(newRNG))
+  }
+  
+  def ex6_4() = {
+    println(RNG.ints(10)(newRNG))
+  }
+  
+  def ex6_5() = {
+    println(RNG.double2(newRNG))
+  }
+  
   def main(args: Array[String]): Unit = {
     ex6_1()
     ex6_2()
+    ex6_3()
+    ex6_4()
+    ex6_5()
   }
   
 }
