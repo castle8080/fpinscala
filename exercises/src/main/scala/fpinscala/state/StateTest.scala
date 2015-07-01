@@ -35,12 +35,28 @@ object StateTest {
     println(RNG.double2(newRNG))
   }
   
+  def ex6_6() = {
+    println(RNG.doubleDouble2(newRNG))
+  }
+  
+  def ex6_7() = {
+    val ds = RNG.sequence(List[RNG.Rand[Double]](
+      RNG.double,
+      RNG.double,
+      RNG.double
+    ))
+    
+    println(ds(newRNG))
+  }
+  
   def main(args: Array[String]): Unit = {
     ex6_1()
     ex6_2()
     ex6_3()
     ex6_4()
     ex6_5()
+    ex6_6()
+    ex6_7()
   }
   
 }
