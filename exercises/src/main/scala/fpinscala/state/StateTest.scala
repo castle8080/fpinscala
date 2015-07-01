@@ -49,6 +49,18 @@ object StateTest {
     println(ds(newRNG))
   }
   
+  def ex6_8() = {
+    println(RNG.nonNegativeLessThan(10000)(newRNG))
+  }
+  
+  def ex6_9() = {
+    val dieRoll = RNG.mapViaFlatMap(RNG.nonNegativeLessThan(6)) { x => x + 1 }
+    val diceRoll = RNG.map2ViaFlatMap(dieRoll, dieRoll)((a,b) => a + b)
+    
+    println(RNG.sequence(List(dieRoll, dieRoll, dieRoll))(newRNG))
+    println(RNG.sequence(List(diceRoll, diceRoll, diceRoll))(newRNG))
+  }
+  
   def main(args: Array[String]): Unit = {
     ex6_1()
     ex6_2()
@@ -57,6 +69,8 @@ object StateTest {
     ex6_5()
     ex6_6()
     ex6_7()
+    ex6_8()
+    ex6_9()
   }
   
 }
