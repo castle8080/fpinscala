@@ -155,7 +155,7 @@ object Machine {
     }
   
   def update(input: Input): State[Machine, Unit] =
-    State { m => ((), update(input, m)) }
+    State.modify { m => update(input, m) }
   
   def simulate(inputs: List[Input]): State[Machine, (Int, Int)] =
     for {
