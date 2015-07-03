@@ -77,6 +77,19 @@ object StateTest {
     println(s1.map2(s2) { (a, b) => a + b }.run("Joe"))
   }
   
+  def ex6_11() = {
+    
+    val sim = Machine.simulate(List(
+        Coin, Turn,
+        Coin, Turn,
+        Coin, Turn,
+        Coin, Turn
+    ))
+
+    println(sim.run(Machine(true, 5, 10)))
+    
+  }
+  
   def main(args: Array[String]): Unit = {
     ex6_1()
     ex6_2()
@@ -88,6 +101,7 @@ object StateTest {
     ex6_8()
     ex6_9()
     ex6_10()
+    ex6_11()
   }
   
 }
