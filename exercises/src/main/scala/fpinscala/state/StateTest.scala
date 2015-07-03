@@ -61,6 +61,22 @@ object StateTest {
     println(RNG.sequence(List(diceRoll, diceRoll, diceRoll))(newRNG))
   }
   
+  def ex6_10() = {
+    
+    println(State.unit(1).run("Bob"))
+    
+    println(State
+      .unit[String, Int](1)
+      .map { x => x + 1 }
+      .run("Bob"))
+
+    val s1 = State.unit[String, Int](1)
+    val s2 = State.unit[String, Int](2)
+        
+    println(s1.flatMap { x => s2 }.run("Bob"))
+    println(s1.map2(s2) { (a, b) => a + b }.run("Joe"))
+  }
+  
   def main(args: Array[String]): Unit = {
     ex6_1()
     ex6_2()
@@ -71,6 +87,7 @@ object StateTest {
     ex6_7()
     ex6_8()
     ex6_9()
+    ex6_10()
   }
   
 }
