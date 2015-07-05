@@ -8,6 +8,9 @@ object Par {
   
   def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
 
+  def lazyUnit[A](a: => A): Par[A] =
+    fork(unit(a))
+  
   def unit[A](a: A): Par[A] = (es: ExecutorService) => UnitFuture(a) // `unit` is represented as a function that returns a `UnitFuture`, which is a simple implementation of `Future` that just wraps a constant value. It doesn't use the `ExecutorService` at all. It's always done and can't be cancelled. Its `get` method simply returns the value that we gave it.
   
   private case class UnitFuture[A](get: A) extends Future[A] {
@@ -67,12 +70,34 @@ object Par {
       }
     }
   }
-    
+ 
+  def asyncF[A,B](f: A => B): A => Par[B] =
+    a => lazyUnit(f(a))
+
   def fork[A](a: => Par[A]): Par[A] = // This is the simplest and most natural implementation of `fork`, but there are some problems with it--for one, the outer `Callable` will block waiting for the "inner" task to complete. Since this blocking occupies a thread in our thread pool, or whatever resource backs the `ExecutorService`, this implies that we're losing out on some potential parallelism. Essentially, we're using two threads when one should suffice. This is a symptom of a more serious problem with the implementation, and we will discuss this later in the chapter.
     es => es.submit(new Callable[A] { 
       def call = a(es).get
     })
 
+    
+  /* 
+   * I implemented this with a fold left because I thought that
+   * most would expect that items earlier in the list would get
+   * started first.  Which was different than the book which
+   * split the list in halves to kick off Pars.  I am not sure why
+   * the book considers that more efficient though.
+   * 
+   * The book also added a fork inside of sequence.  I didn't have
+   * that and I don't actually get why that is there.
+   * 
+   */
+  def sequence[A](ps: List[Par[A]]): Par[List[A]] =
+    map(
+      ps.foldLeft(unit(List.empty[A])) { (acc, p) =>
+        map2(p, acc) { (x, xs) => x :: xs }
+      }
+    ) { _.reverse }
+    
   def map[A,B](pa: Par[A])(f: A => B): Par[B] = 
     map2(pa, unit(()))((a,_) => f(a))
 
