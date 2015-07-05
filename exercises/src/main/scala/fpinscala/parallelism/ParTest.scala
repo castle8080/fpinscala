@@ -8,6 +8,13 @@ object ParTest {
   
   val es = Executors.newCachedThreadPool
 
+  def timedRun[A](run: => A): (A, Long) = {
+    val start = System.currentTimeMillis
+    val a = run
+    val ec = System.currentTimeMillis - start
+    (a, ec)
+  }
+  
   def ex7_3 = {
     
     val p1 = Par.fork {
@@ -22,12 +29,9 @@ object ParTest {
     
     val p3 = Par.myMap2(p1, p2) { _ * _ }
     
-    val start = System.currentTimeMillis
-    val result = p3(es).get
-    val ec = System.currentTimeMillis - start
+    val (result, ec) = timedRun(p3(es).get)
     
     println(s"Result: $result in $ec ms.")
-    
   }
   
   def ex7_4 = {
@@ -48,19 +52,22 @@ object ParTest {
       a
     }
     
-    val pars =
-      (  for {
-           x <- 1 to 10
-         } yield Par.lazyUnit(waitAndGive(x))
-      ).toList
-      
-    val pList = Par.sequence(pars)
+    {
+      val pars =
+        (  for {
+             x <- 1 to 10
+           } yield Par.lazyUnit(waitAndGive(x))
+        ).toList
+        
+      val pList = Par.sequence(pars)
+      val (results, ec) = timedRun(pList(es).get)
+      println(s"Received [$results] in $ec ms.")
+    }
     
-    val start = System.currentTimeMillis
-    val results = pList(es).get
-    val ec = System.currentTimeMillis - start
-    
-    println(s"Received [$results] in $ec ms.")
+    {
+      val (results, ec) = timedRun(Par.parMap((1 to 20).toList)(waitAndGive)(es).get)  
+      println(s"Received [$results] in $ec ms.")
+    }
   }
   
   def main(args: Array[String]): Unit = {
