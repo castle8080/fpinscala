@@ -101,7 +101,12 @@ object Par {
   def parMap[A,B](ps: List[A])(f: A => B): Par[List[B]] = fork {
     sequence(ps.map(asyncF(f)))
   }
-    
+  
+  def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] =
+    map(parMap(as) { a => (a, f(a)) }) { ls =>
+      ls.filter(_._2).map(_._1)
+    }
+  
   def map[A,B](pa: Par[A])(f: A => B): Par[B] = 
     map2(pa, unit(()))((a,_) => f(a))
 
@@ -128,7 +133,9 @@ object Par {
 }
 
 object Examples {
+  
   import Par._
+  
   def sum(ints: IndexedSeq[Int]): Int = // `IndexedSeq` is a superclass of random-access sequences like `Vector` in the standard library. Unlike lists, these sequences provide an efficient `splitAt` method for dividing them into two parts at a particular index.
     if (ints.size <= 1)
       ints.headOption getOrElse 0 // `headOption` is a method defined on all collections in Scala. We saw this function in chapter 3.

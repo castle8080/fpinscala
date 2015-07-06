@@ -70,10 +70,22 @@ object ParTest {
     }
   }
   
+  def ex7_6 = {
+    def longFilter(i: Int): Boolean = {
+      Thread.sleep(100)
+      i % 2 == 1
+    }
+    
+    val (results, ec) = timedRun(Par.parFilter((1 to 30).toList)(longFilter)(es).get)
+    println(s"Received [$results] in $ec ms.")
+  }
+  
   def main(args: Array[String]): Unit = {
     ex7_3
     ex7_4
     ex7_5
+    ex7_6
+    System.exit(0)
   }
   
 }
