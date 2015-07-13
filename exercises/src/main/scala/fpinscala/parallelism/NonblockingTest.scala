@@ -41,10 +41,22 @@ object NonblockingTest {
     
   }
   
+  def ex_7_13 = {
+    val p = Par.flatMapViaJoin(Par.unit(12)) { x =>
+      if (x < 10)
+        Par.unit(1)
+      else
+        Par.unit(2)
+    }
+    
+    println(Par.run(es)(p))
+  }
+  
   def main(args: Array[String]): Unit = {
     try {
       ex_7_11
       ex_7_12
+      ex_7_13
     }
     finally {
       System.exit(1)
