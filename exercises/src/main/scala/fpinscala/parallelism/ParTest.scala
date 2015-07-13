@@ -80,11 +80,16 @@ object ParTest {
     println(s"Received [$results] in $ec ms.")
   }
   
+  def ex7_6_extra = {
+    println(Par.parMax(1 to 5000)((a, b) => a - b)(es).get)
+  }
+  
   def main(args: Array[String]): Unit = {
     ex7_3
     ex7_4
     ex7_5
     ex7_6
+    ex7_6_extra
     System.exit(0)
   }
   

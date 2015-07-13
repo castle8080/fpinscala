@@ -106,6 +106,34 @@ object Par {
     map(parMap(as) { a => (a, f(a)) }) { ls =>
       ls.filter(_._2).map(_._1)
     }
+
+  def parMax[A](as: IndexedSeq[A])(f: (A, A) => Int): Par[Option[A]] =
+    parReduce(as) { (a,b) =>
+      if (f(a, b) >= 0)
+        a
+      else
+        b
+    }
+  
+  def parReduce[A](as: IndexedSeq[A])(f: (A, A) => A): Par[Option[A]] = {
+    
+    def go(as: IndexedSeq[A]): Par[A] = {
+      val size = as.size
+      if (size == 1)
+        Par.unit(as(0))
+      else {
+        val (la, lb) = as.splitAt(size / 2)
+        val pa = go(la)
+        val pb = go(lb)
+        Par.map2(pa, pb)(f)
+      }
+    }
+    
+    if (as.isEmpty)
+      Par.unit(Option.empty[A])
+    else
+      map(go(as))(Some.apply)
+  }
   
   def map[A,B](pa: Par[A])(f: A => B): Par[B] = 
     map2(pa, unit(()))((a,_) => f(a))
@@ -127,8 +155,7 @@ object Par {
   implicit def toParOps[A](p: Par[A]): ParOps[A] = new ParOps(p)
 
   class ParOps[A](p: Par[A]) {
-
-
+    
   }
 }
 

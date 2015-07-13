@@ -13,3 +13,4 @@ project.vim
 /bin/
 .settings
 .cache-main
+.tmpBin
