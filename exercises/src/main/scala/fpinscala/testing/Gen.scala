@@ -46,6 +46,9 @@ object Gen {
   def sequence[A](gens: List[Gen[A]]): Gen[List[A]] =
     Gen(State.sequence(gens.map(_.sample)))
 
+  def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
+    boolean.flatMap(b => if (b) g1 else g2)
+    
 }
 
 case class Gen[+A](sample: State[RNG,A]) {
