@@ -8,19 +8,21 @@ object Exercises_GenFirstDraft {
   
   object Gen {
     
-    def choose(start: Int, stopExclusive: Int): Gen[Int] = Gen { State {
-      RNG.map(RNG.nonNegativeLessThan(stopExclusive - start)) { _ + start }
-    }}
+    def choose(start: Int, stopExclusive: Int): Gen[Int] =
+      Gen(State(RNG.nonNeagativeBetween(start, stopExclusive)))
 
-    def unit[A](a: => A): Gen[A] = Gen(State(RNG.unit(a)))
+    def unit[A](a: => A): Gen[A] =
+      Gen(State(RNG.unit(a)))
     
-    def boolean: Gen[Boolean] = Gen { State {
-      RNG.map(RNG.nonNegativeLessThan(2)) { _ == 0 }
-    }}
+    def boolean: Gen[Boolean] =
+      Gen(State(RNG.boolean))
     
     def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
-      Gen { State.sequence((1 to n).map { n => g.sample }.toList) }
+      sequence(List.fill(n)(g))
 
+    def sequence[A](gens: List[Gen[A]]): Gen[List[A]] =
+      Gen(State.sequence(gens.map(_.sample)))
+      
   } 
   
   def main(args: Array[String]): Unit = {

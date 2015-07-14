@@ -29,7 +29,7 @@ object RNG {
       val (a, rng2) = s(rng)
       (f(a), rng2)
     }
-
+ 
   def nonNegativeInt(rng: RNG): (Int, RNG) =
     rng.nextInt match { case (i, nRng) => (if (i < 0) (i + 1).abs else i, nRng) }
 
@@ -97,7 +97,12 @@ object RNG {
       else
         nonNegativeLessThan(n)
     }
+
+  def nonNeagativeBetween(start: Int, stopExclusive: Int): Rand[Int] =  
+      RNG.map(RNG.nonNegativeLessThan(stopExclusive - start)) { _ + start }
   
+  val boolean = map(nonNegativeLessThan(2)) { x => x == 1 }
+
   def mapViaFlatMap[A,B](ra: Rand[A])(f: A => B): Rand[B] =
     flatMap(ra) { a => unit(f(a)) }
   
