@@ -5,7 +5,23 @@ import Prop._
 import fpinscala.state._
 import fpinscala.laziness.Stream
 
-case class Prop(run: (TestCases, RNG) => Result)
+case class Prop(run: (TestCases, RNG) => Result) {
+   
+  def &&(p: Prop): Prop = Prop { (n, rng) =>
+    // It seems like a bug to me that run doesn't return the new RNG?
+    Prop.this.run(n, rng) match {
+      case f: Falsified => f
+      case Passed => p.run(n, rng)
+    }
+  }
+  
+  def ||(p: Prop): Prop = Prop { (n, rng) =>
+    Prop.this.run(n, rng) match {
+      case Passed => Passed
+      case f: Falsified => p.run(n, rng)
+    }
+  }
+}
 
 object Prop {
 
