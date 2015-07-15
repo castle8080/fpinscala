@@ -49,6 +49,21 @@ object Gen {
   def union[A](g1: Gen[A], g2: Gen[A]): Gen[A] =
     boolean.flatMap(b => if (b) g1 else g2)
     
+  def normal: Gen[Double] =
+    Gen(State(RNG.double))
+    
+  def weighted[A](gens: (Gen[A],Double)*): Gen[A] = {
+    val starts = gens.scanLeft(0.0)(_ + _._2)
+    val total = starts.last.toDouble
+    val weightedRanges = gens.zip(starts).map { case (gen, start) =>
+      (gen._1, start.toDouble / total, (start + gen._2) / total)
+    }
+    
+    normal.flatMap { d =>
+      weightedRanges.find(entry => entry._2 <= d && entry._3 > d).get._1
+    }
+  }
+    
 }
 
 case class Gen[+A](sample: State[RNG,A]) {
