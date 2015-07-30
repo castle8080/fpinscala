@@ -2,11 +2,24 @@ package fpinscala.testing
 
 import fpinscala.state._
 
-object Exercises_GenFirstDraft {
+object GenTest {
   
-  def get[A](g: Gen[A]) = {
-    g.sample.run(new RNG.Simple(System.currentTimeMillis))
+  /**
+   * Hack for testing
+   */
+  object Runner {
+
+    private var rng: RNG = new RNG.Simple(System.currentTimeMillis)
+    
+    def run[A](g: Gen[A]): A = {
+      val (result, newRng) = g.sample.run(rng)
+      rng = newRng
+      result
+    }
+    
   }
+  
+  def get[A](g: Gen[A]) = Runner.run(g)
   
   def ex_8_5 = {
     println(get(Gen.listOfN(10, Gen.boolean)))
@@ -24,7 +37,7 @@ object Exercises_GenFirstDraft {
   def ex_8_8 = {
     
     def runWeightedGen[A](gen: Gen[A]): Unit = {
-      val values = get(Gen.listOfN(1000, gen))._1
+      val values = get(Gen.listOfN(1000, gen))
       val size = values.length
       val valRatios = values
         .groupBy(identity)

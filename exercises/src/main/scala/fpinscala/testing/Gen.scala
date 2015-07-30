@@ -102,6 +102,8 @@ object Gen {
   def randomStream[A](g: Gen[A])(rng: RNG): Stream[A] =
     Stream.unfold(rng)(rng => Some(g.sample.run(rng)))
   
+  def listOf[A](g: Gen[A]): SGen[List[A]] =
+    SGen(Gen.listOfN(_, g))
 }
 
 case class Gen[+A](sample: State[RNG,A]) {
@@ -117,10 +119,18 @@ case class Gen[+A](sample: State[RNG,A]) {
     
   def listOfN(size: Gen[Int]): Gen[List[A]] =
     size.flatMap(listOfN)
-    
+
+  def unsized: SGen[A] =
+    SGen(_ => this)  
 }
 
-trait SGen[+A] {
+case class SGen[+A](forSize: Int => Gen[A]) {
+
+  def map[B](f: A => B): SGen[B] =
+    SGen(n => forSize(n).map(f))
+  
+  def flatMap[B](f: A => Gen[B]): SGen[B] =
+    SGen(n => forSize(n).flatMap(f))
 
 }
 
