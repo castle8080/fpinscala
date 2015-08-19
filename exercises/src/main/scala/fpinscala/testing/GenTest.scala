@@ -73,26 +73,44 @@ object GenTest {
   def ex_8_9 = {
     
     def runProp(p: Prop) = {
-      println(p.run(1, RNG.Simple(System.currentTimeMillis())))
+      println(p.run(1, 1, RNG.Simple(System.currentTimeMillis())))
     }
     
-    runProp(Prop { (n, rng) => Prop.Passed } && Prop { (n, rng) => Prop.Passed })
-    runProp(Prop { (n, rng) => Prop.Passed } && Prop { (n, rng) => Prop.Falsified("foo", 1) })
-    runProp(Prop { (n, rng) => Prop.Falsified("bar", 2) } && Prop { (n, rng) => Prop.Passed })
-    runProp(Prop { (n, rng) => Prop.Falsified("bar", 2) } && Prop { (n, rng) => Prop.Falsified("foo", 1) })
+    runProp(Prop { (m, n, rng) => Prop.Passed } && Prop { (m, n, rng) => Prop.Passed })
+    runProp(Prop { (m, n, rng) => Prop.Passed } && Prop { (m, n, rng) => Prop.Falsified("foo", 1) })
+    runProp(Prop { (m, n, rng) => Prop.Falsified("bar", 2) } && Prop { (m, n, rng) => Prop.Passed })
+    runProp(Prop { (m, n, rng) => Prop.Falsified("bar", 2) } && Prop { (m, n, rng) => Prop.Falsified("foo", 1) })
     
-    runProp(Prop { (n, rng) => Prop.Passed } || Prop { (n, rng) => Prop.Passed })
-    runProp(Prop { (n, rng) => Prop.Passed } || Prop { (n, rng) => Prop.Falsified("foo", 1) })
-    runProp(Prop { (n, rng) => Prop.Falsified("bar", 2) } || Prop { (n, rng) => Prop.Passed })
-    runProp(Prop { (n, rng) => Prop.Falsified("bar", 2) } || Prop { (n, rng) => Prop.Falsified("foo", 1) })
+    runProp(Prop { (m, n, rng) => Prop.Passed } || Prop { (m, n, rng) => Prop.Passed })
+    runProp(Prop { (m, n, rng) => Prop.Passed } || Prop { (m, n, rng) => Prop.Falsified("foo", 1) })
+    runProp(Prop { (m, n, rng) => Prop.Falsified("bar", 2) } || Prop { (m, n, rng) => Prop.Passed })
+    runProp(Prop { (m, n, rng) => Prop.Falsified("bar", 2) } || Prop { (m, n, rng) => Prop.Falsified("foo", 1) })
+  }
+  
+  def listing_8_5 = {
+    
+    import Prop._
+    import SGen._
+    
+    val smallInt = Gen.choose(-10,10)
+    
+    val maxProp = forAll(listOf1(smallInt)) { ns =>
+      val max = ns.max
+      !ns.exists(_ > max)
+    }
+    
+    run(maxProp)
   }
   
   def main(args: Array[String]): Unit = { 
-    ex_8_5
-    ex_8_6
-    ex_8_7
-    ex_8_8
-    ex_8_9
+    //ex_8_5
+    //ex_8_6
+    //ex_8_7
+    //ex_8_8
+    //ex_8_9
+    
+    listing_8_5
+    
   }
 
 }

@@ -5,26 +5,29 @@ import Prop._
 import fpinscala.state._
 import fpinscala.laziness.Stream
 
-case class Prop(run: (TestCases, RNG) => Result) {
+//case class Prop(run: (MaxSize,TestCases,RNG) => Result)
+
+case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
    
-  def &&(p: Prop): Prop = Prop { (n, rng) =>
+  def &&(p: Prop): Prop = Prop { (max, n, rng) =>
     // It seems like a bug to me that run doesn't return the new RNG?
-    Prop.this.run(n, rng) match {
+    Prop.this.run(max, n, rng) match {
       case f: Falsified => f
-      case Passed => p.run(n, rng)
+      case Passed => p.run(max, n, rng)
     }
   }
   
-  def ||(p: Prop): Prop = Prop { (n, rng) =>
-    Prop.this.run(n, rng) match {
+  def ||(p: Prop): Prop = Prop { (max, n, rng) =>
+    Prop.this.run(max, n, rng) match {
       case Passed => Passed
-      case f: Falsified => p.run(n, rng)
+      case f: Falsified => p.run(max, n, rng)
     }
   }
 }
 
 object Prop {
 
+  type MaxSize = Int
   type TestCases = Int
   type FailedCase = String
   type SuccessCount = Int
@@ -40,8 +43,23 @@ object Prop {
   case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
     def isFalsified = true
   }
+
+  def forAll[A](g: SGen[A])(f: A => Boolean): Prop =
+    forAll(g(_))(f)
+
+  def forAll[A](g: Int => Gen[A])(f: A => Boolean): Prop = Prop { (max,n,rng) =>
+    val casesPerSize = (n + (max - 1)) / max
+    val props: Stream[Prop] =
+      Stream.from(0).take((n min max) + 1).map(i => forAll(g(i))(f))
+    
+    val prop: Prop = props.map(p => Prop { (max, _, rng) =>
+      p.run(max, casesPerSize, rng)
+    }).toList.reduce(_ && _)
+    
+    prop.run(max,n,rng)
+  }
   
-  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop { (n, rng) =>
+  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop { (max, n, rng) =>
     val results = randomStream(as)(rng).zip(Stream.from(0)).take(n).map { case (a, i) =>
       try {
         if (f(a))
@@ -56,12 +74,25 @@ object Prop {
     
     results.find(_.isFalsified).getOrElse(Passed)
   }
-  
+
   def buildMsg[A](s: A, e: Exception): String =
     s"test case: $s\n" +
     s"generated an exception: ${e.getMessage}\n" +
     s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
 
+  def run(
+    p: Prop,
+    maxSize: Int = 100,
+    testCases: Int = 100,
+    rng: RNG = RNG.Simple(System.currentTimeMillis)): Unit =
+  {
+    p.run(maxSize, testCases, rng) match {
+      case Falsified(msg, n) =>
+        println(s"! Falsified after $n passed tests:\n $msg")
+      case Passed =>
+        println(s"+ OK, passed $testCases tests.")
+    }
+  }
 }
 
 object Gen {
@@ -124,13 +155,25 @@ case class Gen[+A](sample: State[RNG,A]) {
     SGen(_ => this)  
 }
 
+object SGen {
+
+  def listOf[A](g: Gen[A]): SGen[List[A]] =
+    SGen { (forSize) => Gen.listOfN(forSize, g) }
+
+  def listOf1[A](g: Gen[A]): SGen[List[A]] =
+    SGen { (forSize) => Gen.listOfN(List(forSize, 1).max, g) }
+  
+}
+
 case class SGen[+A](forSize: Int => Gen[A]) {
 
+  def apply(n: Int): Gen[A] = forSize(n)
+  
   def map[B](f: A => B): SGen[B] =
     SGen(n => forSize(n).map(f))
   
   def flatMap[B](f: A => Gen[B]): SGen[B] =
     SGen(n => forSize(n).flatMap(f))
-
+    
 }
 
