@@ -87,8 +87,7 @@ object GenTest {
     runProp(Prop { (m, n, rng) => Prop.Falsified("bar", 2) } || Prop { (m, n, rng) => Prop.Falsified("foo", 1) })
   }
   
-  def listing_8_5 = {
-    
+  def ex_8_13 = {
     import Prop._
     import SGen._
     
@@ -103,14 +102,12 @@ object GenTest {
   }
   
   def main(args: Array[String]): Unit = { 
-    //ex_8_5
-    //ex_8_6
-    //ex_8_7
-    //ex_8_8
-    //ex_8_9
-    
-    listing_8_5
-    
+    ex_8_5
+    ex_8_6
+    ex_8_7
+    ex_8_8
+    ex_8_9
+    ex_8_13
   }
 
 }
