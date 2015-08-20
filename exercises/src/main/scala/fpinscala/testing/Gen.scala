@@ -100,6 +100,9 @@ object Gen {
   def unit[A](a: => A): Gen[A] =
     Gen(State(RNG.unit(a)))
   
+  def int: Gen[Int] =
+    Gen(State(RNG.int))
+    
   def choose(start: Int, stopExclusive: Int): Gen[Int] =
     Gen(State(RNG.nonNeagativeBetween(start, stopExclusive)))
 

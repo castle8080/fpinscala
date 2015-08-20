@@ -101,6 +101,20 @@ object GenTest {
     run(maxProp)
   }
   
+  def ex_8_14 = {
+    import Prop._
+    import SGen._
+
+    val prop = forAll(listOf(Gen.int)) { l =>
+      val sl = l.sorted
+      (sl.isEmpty || sl.zip(sl.tail).forall { case (ic, in) => in >= ic }) &&
+        l.forall { x => sl.contains(x) } &&
+        sl.length == l.length
+    }
+    
+    run(prop)
+  }
+  
   def main(args: Array[String]): Unit = { 
     ex_8_5
     ex_8_6
@@ -108,6 +122,7 @@ object GenTest {
     ex_8_8
     ex_8_9
     ex_8_13
+    ex_8_14
   }
 
 }
