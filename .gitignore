@@ -14,3 +14,4 @@ project.vim
 .settings
 .cache-main
 .tmpBin
+*.iml
