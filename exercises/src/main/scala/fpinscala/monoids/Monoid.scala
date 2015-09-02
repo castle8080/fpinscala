@@ -6,6 +6,14 @@ import fpinscala.parallelism.Nonblocking.Par.toParOps // infix syntax for `Par.m
 trait Monoid[A] {
   def op(a1: A, a2: A): A
   def zero: A
+
+  def reversed: Monoid[A] = {
+    val p = this
+    new Monoid[A] {
+      def op(a1: A, a2: A) = p.op(a2, a1)
+      def zero = p.zero
+    }
+  }
 }
 
 object Monoid {
@@ -73,10 +81,10 @@ object Monoid {
     as.foldLeft(m.zero) { (result, i) => m.op(result, f(i)) }
 
   def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
-    sys.error("todo")
+    foldMap(as, endoMonoid[B].reversed)(a => b => f(a, b))(z)
 
   def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B =
-    sys.error("todo")
+    foldMap(as, endoMonoid[B])(a => b => f(b, a))(z)
 
   def foldMapV[A, B](as: IndexedSeq[A], m: Monoid[B])(f: A => B): B =
     sys.error("todo")
