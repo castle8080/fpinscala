@@ -61,13 +61,16 @@ object Monoid {
   import Prop._
   def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop = sys.error("todo")
 
-  def trimMonoid(s: String): Monoid[String] = sys.error("todo")
+  def stringMonoid(s: String): Monoid[String] = new Monoid[String] {
+    def zero = ""
+    def op(s1: String, s2: String) = s1 + s2
+  }
 
   def concatenate[A](as: List[A], m: Monoid[A]): A =
-    sys.error("todo")
+    foldMap(as, m)(identity)
 
   def foldMap[A, B](as: List[A], m: Monoid[B])(f: A => B): B =
-    sys.error("todo")
+    as.foldLeft(m.zero) { (result, i) => m.op(result, f(i)) }
 
   def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
     sys.error("todo")
