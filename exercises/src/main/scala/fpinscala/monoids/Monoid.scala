@@ -96,8 +96,33 @@ object Monoid {
       }
     }
 
-  def ordered(ints: IndexedSeq[Int]): Boolean =
-    sys.error("todo")
+  def ordered(ints: IndexedSeq[Int]): Boolean = {
+
+    sealed abstract class OrderTracking {
+      def isOrdered: Boolean
+    }
+    case class OrderedPortion(min: Int, max: Int) extends OrderTracking {
+      def isOrdered = true
+    }
+    case object EmptyPortion extends OrderTracking {
+      def isOrdered = true
+    }
+    case object UnorderedPortion extends OrderTracking {
+      def isOrdered = false
+    }
+
+    val m = new Monoid[OrderTracking] {
+      def zero = EmptyPortion
+      def op(o1: OrderTracking, o2: OrderTracking) = (o1, o2) match {
+        case (op1: OrderedPortion, op2: OrderedPortion) if op2.min >= op1.max => OrderedPortion(op1.min, op2.max)
+        case (op1: OrderedPortion, EmptyPortion) => op1
+        case (EmptyPortion, op2: OrderedPortion) => op2
+        case _ => UnorderedPortion
+      }
+    }
+
+    foldMapV(ints, m)(i => OrderedPortion(i, i)).isOrdered
+  }
 
   sealed trait WC
   case class Stub(chars: String) extends WC

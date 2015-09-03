@@ -15,3 +15,5 @@ project.vim
 .cache-main
 .tmpBin
 *.iml
+\#*
+.#*
