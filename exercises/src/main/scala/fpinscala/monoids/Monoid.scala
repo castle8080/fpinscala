@@ -136,7 +136,18 @@ object Monoid {
   def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
     foldMapV(v, par(m)) { a => Par.fork(Par.unit(f(a))) }
 
-  lazy val wcMonoid: Monoid[WC] = sys.error("todo")
+  lazy val wcMonoid: Monoid[WC] = new Monoid[WC] {
+    def zero = Stub("")
+    def op(wc1: WC, wc2: WC) = (wc1, wc2) match {
+      case (p1: Part, p2: Part) => {
+        val middleWord = if ((p1.rStub + p2.lStub).isEmpty) 0 else 1
+        Part(p1.lStub, p1.words + p2.words + middleWord, p2.rStub)
+      }
+      case (s: Stub, p: Part) => Part(s.chars + p.lStub, p.words, p.rStub)
+      case (p: Part, s: Stub) => Part(p.lStub, p.words, p.rStub + s.chars)
+      case (s1: Stub, s2: Stub) => Stub(s1.chars + s2.chars)
+    }
+  }
 
   def count(s: String): Int = sys.error("todo")
 

@@ -17,3 +17,4 @@ project.vim
 *.iml
 \#*
 .#*
+exercises/out
