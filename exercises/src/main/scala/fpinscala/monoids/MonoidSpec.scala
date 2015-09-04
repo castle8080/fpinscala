@@ -19,7 +19,7 @@ class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChec
 
   "Word count" should "find the right word count" in {
     def wc2(s: String) =
-      s.split("""\s+""").filter(!_.isEmpty).size
+      s.split(""" +""").filter(!_.isEmpty).size
 
     forAll { (s: String) =>
       Monoid.count(s) shouldBe wc2(s)

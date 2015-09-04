@@ -157,10 +157,7 @@ object Monoid {
     }
 
     def toWC(s: String): WC =
-      if (s.length <= 1)
-        Stub(s)
-      else
-        s.splitAt(s.length / 2) match { case (p1, p2) => wcMonoid.op(toWC(p1), toWC(p2)) }
+      foldMapV(s.toIndexedSeq, wcMonoid) { c => Stub(c.toString) }
 
     count(toWC(s))
   }
