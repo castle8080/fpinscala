@@ -136,20 +136,35 @@ object Monoid {
   def parFoldMap[A,B](v: IndexedSeq[A], m: Monoid[B])(f: A => B): Par[B] =
     foldMapV(v, par(m)) { a => Par.fork(Par.unit(f(a))) }
 
-  lazy val wcMonoid: Monoid[WC] = new Monoid[WC] {
+  val wcMonoid: Monoid[WC] = new Monoid[WC] {
     def zero = Stub("")
     def op(wc1: WC, wc2: WC) = (wc1, wc2) match {
-      case (p1: Part, p2: Part) => {
-        val middleWord = if ((p1.rStub + p2.lStub).isEmpty) 0 else 1
-        Part(p1.lStub, p1.words + p2.words + middleWord, p2.rStub)
-      }
+      case (p1: Part, p2: Part) => Part(p1.lStub, p1.words + p2.words + (if ((p1.rStub + p2.lStub).isEmpty) 0 else 1), p2.rStub)
       case (s: Stub, p: Part) => Part(s.chars + p.lStub, p.words, p.rStub)
       case (p: Part, s: Stub) => Part(p.lStub, p.words, p.rStub + s.chars)
       case (s1: Stub, s2: Stub) => Stub(s1.chars + s2.chars)
     }
   }
 
-  def count(s: String): Int = sys.error("todo")
+  def count(s: String): Int = {
+
+    def swc(s: String) =
+      if (s.isEmpty) 0 else 1
+
+    def count(wc: WC) = wc match {
+      case Stub(s) => swc(s)
+      case Part(l, words, r) => swc(l) + words + swc(r)
+    }
+
+    def toWC(s: String): WC =
+      if (s.length <= 1)
+        Stub(s)
+      else
+        s.splitAt(s.length / 2) match { case (p1, p2) => wcMonoid.op(toWC(p1), toWC(p2)) }
+
+    count(toWC(s))
+  }
+
 
   def productMonoid[A,B](A: Monoid[A], B: Monoid[B]): Monoid[(A, B)] =
     sys.error("todo")

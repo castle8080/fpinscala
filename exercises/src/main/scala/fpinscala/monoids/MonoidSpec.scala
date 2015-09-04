@@ -1,11 +1,12 @@
 package fpinscala.monoids
 
+import org.scalacheck.Gen
 import org.scalatest.prop.{GeneratorDrivenPropertyChecks, Checkers}
 import org.scalatest.{Matchers, FlatSpec}
 
 class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks {
 
-  it should "adhere to ordered properties" in {
+  "The ordered monoid" should "adhere to ordered properties" in {
     forAll { (ints: Vector[Int]) =>
       if (ints.isEmpty)
         Monoid.ordered(ints) shouldBe true
@@ -15,4 +16,14 @@ class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChec
       }
     }
   }
+
+  "Word count" should "find the right word count" in {
+    def wc2(s: String) =
+      s.split("""\s+""").filter(!_.isEmpty).size
+
+    forAll { (s: String) =>
+      Monoid.count(s) shouldBe wc2(s)
+    }
+  }
+
 }
