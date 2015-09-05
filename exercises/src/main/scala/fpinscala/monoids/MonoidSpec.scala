@@ -26,4 +26,51 @@ class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChec
     }
   }
 
+  "The ListFoldable" should "concatenate" in {
+
+    // Basic example
+    ListFoldable.concatenate(List("a", "b", "c"))(Monoid.stringMonoid) shouldBe "abc"
+
+    // Deeper check of strings
+    forAll { (s: List[String]) =>
+      ListFoldable.concatenate(s)(Monoid.stringMonoid) shouldBe s.mkString("")
+    }
+
+    // Deeper check of ints
+    forAll { (is: List[Int]) =>
+      ListFoldable.concatenate(is)(Monoid.intAddition) shouldBe is.sum
+    }
+  }
+
+  it should "foldRight" in {
+    forAll { (s: List[String]) =>
+      val frr = ListFoldable.foldLeft(s)("") { (s, i) => i + s }
+      val flr = ListFoldable.foldRight(s.reverse)("") { (i, s) => i + s }
+      frr shouldBe flr
+    }
+  }
+
+  "The IndexedSeqFoldable" should "concatenate" in {
+
+    // Basic example
+    IndexedSeqFoldable.concatenate(Vector("a", "b", "c"))(Monoid.stringMonoid) shouldBe "abc"
+
+    // Deeper check of strings
+    forAll { (s: Vector[String]) =>
+      IndexedSeqFoldable.concatenate(s)(Monoid.stringMonoid) shouldBe s.mkString("")
+    }
+
+    // Deeper check of ints
+    forAll { (is: Vector[Int]) =>
+      IndexedSeqFoldable.concatenate(is)(Monoid.intAddition) shouldBe is.sum
+    }
+  }
+
+  it should "foldRight" in {
+    forAll { (s: Vector[String]) =>
+      val frr = IndexedSeqFoldable.foldLeft(s)("") { (s, i) => i + s }
+      val flr = IndexedSeqFoldable.foldRight(s.reverse)("") { (i, s) => i + s }
+      frr shouldBe flr
+    }
+  }
 }
