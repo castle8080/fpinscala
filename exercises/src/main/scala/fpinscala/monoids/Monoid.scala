@@ -162,7 +162,6 @@ object Monoid {
     count(toWC(s))
   }
 
-
   def productMonoid[A,B](A: Monoid[A], B: Monoid[B]): Monoid[(A, B)] = new Monoid[(A,B)] {
     def zero = (A.zero, B.zero)
     def op(p1: (A,B), p2: (A,B)) = (A.op(p1._1, p2._1), B.op(p1._2, p2._2))
@@ -176,8 +175,17 @@ object Monoid {
       a => B.op(f1(a), f2(a))
   }
 
-  def mapMergeMonoid[K,V](V: Monoid[V]): Monoid[Map[K, V]] =
-    sys.error("todo")
+  def mapMergeMonoid[K,V](V: Monoid[V]): Monoid[Map[K, V]] = new Monoid[Map[K,V]] {
+    def zero: Map[K,V] =
+      Map.empty[K,V]
+    
+    def op(m1: Map[K,V], m2: Map[K,V]): Map[K,V] =
+      (m1.keySet ++ m2.keySet)
+        .map { k => 
+          k -> V.op(m1.getOrElse(k, V.zero), m2.getOrElse(k, V.zero))
+        }
+        .toMap
+  }
 
   def bag[A](as: IndexedSeq[A]): Map[A, Int] =
     sys.error("todo")
