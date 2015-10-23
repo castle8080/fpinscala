@@ -73,4 +73,9 @@ class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChec
       frr shouldBe flr
     }
   }
+
+  "Monoid.bag" should "count items" in {
+    Monoid.bag(Vector("Joe", "Bob", "Joe")) shouldBe Map("Joe" -> 2, "Bob" -> 1)
+  }
+
 }
