@@ -10,9 +10,9 @@ project.vim
 .project
 .classpath
 .metadata/
+.cache*
 /bin/
 .settings
-.cache-main
 .tmpBin
 *.iml
 \#*

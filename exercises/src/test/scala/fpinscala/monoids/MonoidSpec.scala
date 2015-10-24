@@ -3,7 +3,11 @@ package fpinscala.monoids
 import org.scalacheck.Gen
 import org.scalatest.prop.{GeneratorDrivenPropertyChecks, Checkers}
 import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.junit.JUnitRunner
 
+import org.junit.runner.RunWith
+
+@RunWith(classOf[JUnitRunner])
 class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks {
 
   "The ordered monoid" should "adhere to ordered properties" in {

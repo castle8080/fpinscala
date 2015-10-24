@@ -54,25 +54,53 @@ trait Monad[M[_]] extends Functor[M] {
 case class Reader[R, A](run: R => A)
 
 object Monad {
+
   val genMonad = new Monad[Gen] {
     def unit[A](a: => A): Gen[A] = Gen.unit(a)
     override def flatMap[A,B](ma: Gen[A])(f: A => Gen[B]): Gen[B] =
       ma flatMap f
   }
 
-  val parMonad: Monad[Par] = ???
+  val parMonad: Monad[Par] = new Monad[Par] {
 
+    def unit[A](a: => A) = Par.unit(a)
+    
+    def flatMap[A,B](ma: Par[A])(f: A => Par[B]): Par[B] = Par.flatMap(ma)(f)
+  }
+
+  // I never did the parser exercises.
   def parserMonad[P[+_]](p: Parsers[P]): Monad[P] = ???
 
-  val optionMonad: Monad[Option] = ???
+  val optionMonad: Monad[Option] = new Monad[Option] {
 
-  val streamMonad: Monad[Stream] = ???
+    def unit[A](a: => A) =
+      Option(a)
+    
+    def flatMap[A,B](ma: Option[A])(f: A => Option[B]): Option[B] =
+      ma flatMap f
+  }
 
-  val listMonad: Monad[List] = ???
+  val streamMonad: Monad[Stream] = new Monad[Stream] {
+    
+    def unit[A](a: => A) =
+      Stream(a)
+      
+    def flatMap[A,B](ma: Stream[A])(f: A => Stream[B]): Stream[B] =
+      ma flatMap f
+  }
+
+  val listMonad: Monad[List] = new Monad[List] {
+    
+    def unit[A](a: => A) =
+      List(a)
+      
+    def flatMap[A,B](ma: List[A])(f: A => List[B]): List[B] =
+      ma flatMap f
+  }
 
   def stateMonad[S] = ???
 
-  val idMonad: Monad[Id] = ???
+  //val idMonad: Monad[Id] = ???
 
   def readerMonad[R] = ???
 }

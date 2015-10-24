@@ -138,6 +138,12 @@ object Par {
   def map[A,B](pa: Par[A])(f: A => B): Par[B] = 
     map2(pa, unit(()))((a,_) => f(a))
 
+  def flatMap[A,B](pa: Par[A])(f: A => Par[B]): Par[B] =
+    flatten(map(pa)(f))
+    
+  def flatten[A](ppa: Par[Par[A]]): Par[A] =
+    fork((es: ExecutorService) => ppa(es).get()(es))
+
   def sortPar(parList: Par[List[Int]]) = map(parList)(_.sorted)
 
   def equal[A](e: ExecutorService)(p: Par[A], p2: Par[A]): Boolean = 
