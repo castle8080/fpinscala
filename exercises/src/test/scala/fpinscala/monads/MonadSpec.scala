@@ -18,4 +18,12 @@ class MonadSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyCheck
     }
   }
   
+  "An Option Monad" should "do sequence" in {
+    optionMonad.sequence(List(Option(1))) shouldBe Some(List(1))
+    optionMonad.sequence(List(Option(1), Option(2))) shouldBe Some(List(1, 2))
+    optionMonad.sequence(List.empty) shouldBe Some(List.empty)
+    optionMonad.sequence(List(Option(1), None)) shouldBe None
+    optionMonad.sequence(List(None)) shouldBe None
+  }
+  
 }
