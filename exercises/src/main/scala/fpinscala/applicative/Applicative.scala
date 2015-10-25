@@ -9,7 +9,6 @@ import monoids._
 
 trait Applicative[F[_]] extends Functor[F] {
 
-
   def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
     apply(apply(unit(f.curried))(fa))(fb)
 
@@ -64,7 +63,17 @@ trait Monad[F[_]] extends Applicative[F] {
 }
 
 object Monad {
-  def eitherMonad[E]: Monad[({type f[x] = Either[E, x]})#f] = ???
+  
+  def eitherMonad[E] = new Monad[({type f[x] = Either[E, x]})#f] {
+    
+    def unit[A](a: => A): Either[E,A] =
+      Right(a)
+    
+    override def flatMap[A,B](e: Either[E,A])(f: A => Either[E,B]): Either[E,B] = e match {
+      case Left(l) => Left(l)
+      case Right(r) => f(r)
+    }
+  }
 
   def stateMonad[S] = new Monad[({type f[x] = State[S, x]})#f] {
     def unit[A](a: => A): State[S, A] = State(s => (a, s))
