@@ -9,22 +9,30 @@ import monoids._
 
 trait Applicative[F[_]] extends Functor[F] {
 
-  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] = ???
-
-  def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] = ???
-
+  def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C]
+  
   def unit[A](a: => A): F[A]
+
+  def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] =
+    map2(fab, fa) { _ apply _ }
 
   def map[A,B](fa: F[A])(f: A => B): F[B] =
     apply(unit(f))(fa)
 
-  def sequence[A](fas: List[F[A]]): F[List[A]] = ???
+  def sequence[A](fas: List[F[A]]): F[List[A]] =
+    traverse(fas)(identity)
 
-  def traverse[A,B](as: List[A])(f: A => F[B]): F[List[B]] = ???
+  def traverse[A,B](as: List[A])(f: A => F[B]): F[List[B]] =
+    as.foldRight(unit(List.empty[B])) { (a, mlb) =>
+      map2(f(a), mlb) { _ :: _ }
+    }
 
-  def replicateM[A](n: Int, fa: F[A]): F[List[A]] = ???
+  def replicateM[A](n: Int, fa: F[A]): F[List[A]] =
+    sequence(List.fill(n)(fa))
 
-  def factor[A,B](fa: F[A], fb: F[B]): F[(A,B)] = ???
+  // The book I have calls this method product?
+  def factor[A,B](fa: F[A], fb: F[B]): F[(A,B)] =
+    map2(fa, fb) { (_,_) }
 
   def product[G[_]](G: Applicative[G]): Applicative[({type f[x] = (F[x], G[x])})#f] = ???
 
