@@ -1,14 +1,13 @@
 package fpinscala.monads
 
-import org.scalatest.Matchers
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.FlatSpec
+import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
-import org.junit.runner.RunWith
+import Monad._
+import fpinscala.SpecBase
 
 @RunWith(classOf[JUnitRunner])
-class MonadSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks {
+class MonadSpec extends SpecBase {
   
   import Monad._
   

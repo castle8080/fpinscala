@@ -1,14 +1,14 @@
 package fpinscala.monoids
 
-import org.scalacheck.Gen
-import org.scalatest.prop.{GeneratorDrivenPropertyChecks, Checkers}
-import org.scalatest.{Matchers, FlatSpec}
-import org.scalatest.junit.JUnitRunner
+import scala.Vector
 
 import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+
+import fpinscala.SpecBase
 
 @RunWith(classOf[JUnitRunner])
-class MonoidSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks {
+class MonoidSpec extends SpecBase {
 
   "The ordered monoid" should "adhere to ordered properties" in {
     forAll { (ints: Vector[Int]) =>
