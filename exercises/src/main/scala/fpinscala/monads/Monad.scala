@@ -45,7 +45,17 @@ trait Monad[M[_]] extends Functor[M] {
   def replicateM[A](n: Int, ma: M[A]): M[List[A]] =
     sequence(List.fill(n)(ma))
     
-  def compose[A,B,C](f: A => M[B], g: B => M[C]): A => M[C] = ???
+    
+  // My answer was a bit different than the book, but the results are the same.
+  def filterM[A](ms: List[A])(f: A => M[Boolean]): M[List[A]] =
+    ms.foldRight(unit(List.empty[A])) { (a, mas) =>
+      map2(f(a), mas) { (b, as) =>
+        if (b) a :: as else as
+      }
+    }
+ 
+  def compose[A,B,C](f: A => M[B], g: B => M[C]): A => M[C] =
+    (a) => flatMap(f(a))(g)
 
   // Implement in terms of `compose`:
   def _flatMap[A,B](ma: M[A])(f: A => M[B]): M[B] = ???
