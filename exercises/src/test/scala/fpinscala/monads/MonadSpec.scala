@@ -26,4 +26,8 @@ class MonadSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyCheck
     optionMonad.sequence(List(None)) shouldBe None
   }
   
+  "An Id Monad" should "by mappable" in {
+    idMonad.map(Id(1))(_ + 1) shouldBe Id(2)
+  }
+
 }
