@@ -8,7 +8,9 @@ import StateUtil._ // defined at bottom of this file
 import monoids._
 
 trait Applicative[F[_]] extends Functor[F] {
-
+    
+  def unit[A](a: => A): F[A]
+  
   def map2[A,B,C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
     apply(apply(unit(f.curried))(fa))(fb)
 
@@ -17,8 +19,6 @@ trait Applicative[F[_]] extends Functor[F] {
   
   def map4[A,B,C,D,E](fa: F[A], fb: F[B], fc: F[C], fd: F[D]) (f: (A, B, C, D) => E): F[E] =
     apply(apply(apply(apply(unit(f.curried))(fa))(fb))(fc))(fd)
-    
-  def unit[A](a: => A): F[A]
 
   def apply[A,B](fab: F[A => B])(fa: F[A]): F[B] =
     map2(fab, fa) { _ apply _ }
@@ -105,7 +105,24 @@ object Applicative {
       a zip b map f.tupled
   }
 
-  def validationApplicative[E]: Applicative[({type f[x] = Validation[E,x]})#f] = ???
+  def validationApplicative[E] = new Applicative[({type f[x] = Validation[E,x]})#f] {
+    
+    def unit[A](a: => A): Validation[E,A] =
+      Success(a)
+  
+    override def map2[A,B,C](va: Validation[E,A], vb: Validation[E,B])(f: (A, B) => C): Validation[E,C] =
+      (va, vb) match {
+        case (fa: Failure[E], fb: Failure[E]) =>
+          Failure[E](fb.head, (fb.tail :+ fa.head) ++ fa.tail)
+        case (fa: Failure[E], _) =>
+          fa
+        case (_, fb: Failure[E]) =>
+          fb
+        case (sa: Success[A], sb: Success[B]) =>
+          Success(f(sa.a, sb.a))
+      }
+
+  }
 
   type Const[A, B] = A
 
